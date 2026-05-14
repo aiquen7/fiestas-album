@@ -69,7 +69,7 @@ function App() {
 
       // Upload to Supabase Storage
       const fileName = `${Date.now()}-${compressedFile.name}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('fotos_fiesta')
         .upload(fileName, compressedFile);
 
