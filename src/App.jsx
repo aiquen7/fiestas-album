@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from './lib/supabase';
 import imageCompression from 'browser-image-compression';
+import { Camera, User, Clock } from 'lucide-react';
 
 function App() {
   const [userName, setUserName] = useState('');
@@ -94,24 +95,39 @@ function App() {
     }
   };
 
+  const getRelativeTime = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    if (diffInSeconds < 60) return 'ahora';
+    if (diffInSeconds < 3600) return `hace ${Math.floor(diffInSeconds / 60)} min`;
+    if (diffInSeconds < 86400) return `hace ${Math.floor(diffInSeconds / 3600)} h`;
+    return `hace ${Math.floor(diffInSeconds / 86400)} d`;
+  };
+
   return (
-    <div className="min-h-screen bg-black text-white font-sans">
-      {/* Modal */}
+    <div className="min-h-screen bg-slate-950 text-white font-sans relative overflow-hidden">
+      {/* Gradientes radiales de fondo */}
+      <div className="absolute inset-0 bg-gradient-radial from-cyan-500/20 via-transparent to-transparent opacity-50"></div>
+      <div className="absolute inset-0 bg-gradient-radial from-purple-500/20 via-transparent to-transparent opacity-50" style={{ backgroundPosition: 'bottom right' }}></div>
+
+      {/* Modal de bienvenida */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md flex items-center justify-center z-50">
-          <div className="bg-gray-900 bg-opacity-80 backdrop-blur-lg p-8 rounded-lg shadow-2xl max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-8 max-w-md w-full">
             <h2 className="text-2xl font-bold mb-4 text-center">Bienvenido</h2>
-            <p className="mb-4 text-center">Ingresa tu nombre y apellido</p>
+            <p className="mb-6 text-center text-white/80">Ingresa tu nombre y apellido</p>
             <input
               type="text"
               value={inputName}
               onChange={(e) => setInputName(e.target.value)}
-              className="w-full p-3 bg-gray-800 text-white rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl mb-6 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400"
               placeholder="Nombre y Apellido"
             />
             <button
               onClick={handleSaveName}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300"
+              className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300"
             >
               Guardar
             </button>
@@ -120,38 +136,46 @@ function App() {
       )}
 
       {/* Header */}
-      <header className="p-4 text-center">
-        <h1 className="text-3xl font-bold">Fiestas Album</h1>
-        <p className="text-gray-400">Comparte fotos en tiempo real</p>
+      <header className="relative z-10 p-6">
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-6 text-center">
+          <h1 className="text-2xl font-bold">¡Qué bueno verte, {userName}!</h1>
+          <p className="text-white/70 mt-2">Comparte fotos en tiempo real</p>
+        </div>
       </header>
 
-      {/* Photo Grid */}
-      <main className="p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {/* Galería Bento Grid */}
+      <main className="relative z-10 px-4 pb-24">
+        <div className="columns-2 gap-3 space-y-3">
           {photos.map((photo) => (
-            <div key={photo.id} className="relative group">
+            <div key={photo.id} className="break-inside-avoid relative group">
               <img
                 src={photo.url_foto}
                 alt={`Foto de ${photo.nombre_usuario}`}
-                className="w-full h-64 object-cover rounded-lg shadow-lg"
+                className="w-full rounded-2xl shadow-xl object-cover transition-opacity duration-500"
+                style={{ aspectRatio: '1' }}
+                onLoad={(e) => e.target.style.opacity = '1'}
+                onError={(e) => e.target.style.opacity = '0.5'}
               />
-              <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm">
-                {photo.nombre_usuario}
+              {/* Badge de usuario */}
+              <div className="absolute bottom-3 left-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-3 py-2 shadow-lg flex items-center gap-2">
+                <User className="w-4 h-4 text-cyan-400" />
+                <span className="text-sm font-medium">{photo.nombre_usuario}</span>
+                <div className="flex items-center gap-1 text-xs text-white/70">
+                  <Clock className="w-3 h-3" />
+                  <span>{getRelativeTime(photo.created_at)}</span>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </main>
 
-      {/* Floating Camera Button */}
+      {/* FAB con glow */}
       <button
         onClick={handleCameraClick}
-        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition duration-300 z-40"
+        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white p-5 rounded-full shadow-2xl hover:shadow-cyan-500/50 transition duration-300 z-40 glow-effect"
       >
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
+        <Camera className="w-8 h-8" />
       </button>
 
       {/* Hidden File Input */}
@@ -163,6 +187,16 @@ function App() {
         onChange={handleFileSelect}
         className="hidden"
       />
+
+      {/* Estilos adicionales para glow */}
+      <style jsx>{`
+        .glow-effect {
+          box-shadow: 0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(6, 182, 212, 0.3);
+        }
+        .bg-gradient-radial {
+          background: radial-gradient(circle, var(--tw-gradient-stops));
+        }
+      `}</style>
     </div>
   );
 }
