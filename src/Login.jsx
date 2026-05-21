@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { UserCircle } from 'lucide-react';
 
 export default function Login({ onLogin }) {
   const [firstName, setFirstName] = useState('');
@@ -20,12 +19,7 @@ export default function Login({ onLogin }) {
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-xl rounded-[2rem] border border-white/10 bg-slate-900/80 p-8 shadow-2xl shadow-cyan-500/10 backdrop-blur-xl">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-cyan-500/15 mb-4">
-            <UserCircle className="w-12 h-12 text-cyan-300" />
-          </div>
-          <h1 className="text-5xl font-black tracking-tight text-white">Fiesta Album</h1>
-          <p className="mt-3 text-sm text-slate-400">Accede al álbum del evento y sube tus recuerdos con estilo.</p>
-          <p className="text-slate-500 text-xs mt-1">13 de Mayo 2026</p>
+          <h1 className="text-5xl font-black tracking-tight text-white">Mis 50 Karina</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from './lib/supabase';
 import imageCompression from 'browser-image-compression';
-import { Camera, ChevronDown, User } from 'lucide-react';
+import { Camera, ChevronDown } from 'lucide-react';
 import Login from './Login';
 
 function App() {
@@ -33,7 +33,6 @@ function App() {
 
   const mapPhoto = (row) => {
     const url = row.url || row.url_foto || '';
-    const uploadedAt = row.created_at || new Date().toISOString();
     const fullName =
       typeof row.nombre_usuario === 'string'
         ? row.nombre_usuario
@@ -46,7 +45,6 @@ function App() {
     return {
       id: row.id?.toString() ?? `${Date.now()}-${Math.random()}`,
       url,
-      uploadedAt,
       uploadedBy: {
         firstName: firstName || 'Invitado',
         lastName: lastParts.join(' '),
@@ -129,17 +127,6 @@ function App() {
     fileInputRef.current?.click();
   };
 
-  const getRelativeTime = (dateString) => {
-    const now = new Date();
-    const date = new Date(dateString);
-    const diffInSeconds = Math.floor((now - date) / 1000);
-
-    if (diffInSeconds < 60) return 'ahora';
-    if (diffInSeconds < 3600) return `hace ${Math.floor(diffInSeconds / 60)} min`;
-    if (diffInSeconds < 86400) return `hace ${Math.floor(diffInSeconds / 3600)} h`;
-    return `hace ${Math.floor(diffInSeconds / 86400)} d`;
-  };
-
   if (!user) {
     return <Login onLogin={handleLogin} />;
   }
@@ -156,24 +143,8 @@ function App() {
       <div className="relative z-10 min-h-screen flex flex-col px-4 py-8">
         <header className="mb-8">
           <div className="mx-auto max-w-5xl overflow-hidden rounded-[2rem] border border-white/10 bg-slate-900/70 p-8 backdrop-blur-xl shadow-2xl shadow-cyan-500/10">
-            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">Fiesta Album</p>
-                <h1 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl">Mis 50 Karina</h1>
-                <p className="mt-3 max-w-2xl text-sm text-slate-300 sm:text-base">
-                  Álbum colaborativo para reunir las mejores fotos del evento en un mismo lugar. Comparte momentos en vivo con estilo y elegancia.
-                </p>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Fotos cargadas</p>
-                  <p className="mt-2 text-3xl font-bold text-white">{photos.length}</p>
-                </div>
-                <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Bienvenido</p>
-                  <p className="mt-2 text-3xl font-bold text-white">{user.firstName} {user.lastName}</p>
-                </div>
-              </div>
+            <div className="text-center">
+              <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">Mis 50 Karina</h1>
             </div>
           </div>
         </header>
@@ -207,7 +178,6 @@ function App() {
                     />
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/90 to-transparent px-4 py-4 text-white">
                       <p className="text-sm font-semibold">{photo.uploadedBy.firstName} {photo.uploadedBy.lastName}</p>
-                      <p className="mt-1 text-xs text-slate-300">{getRelativeTime(photo.uploadedAt)}</p>
                     </div>
                   </div>
                 </article>
