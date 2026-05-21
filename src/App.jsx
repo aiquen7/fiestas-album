@@ -3,6 +3,7 @@ import { supabase } from './lib/supabase';
 import imageCompression from 'browser-image-compression';
 import { Camera, ChevronDown } from 'lucide-react';
 import Login from './Login';
+import FiestaBackground from './components/FiestaBackground';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -132,52 +133,51 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white relative overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse"></div>
-        <div className="absolute top-0 -right-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse"></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse"></div>
-        <div className="absolute bottom-0 right-20 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse"></div>
-      </div>
-
-      <div className="relative z-10 min-h-screen flex flex-col px-4 py-8">
-        <header className="mb-8">
-          <div className="mx-auto max-w-5xl overflow-hidden rounded-[2rem] border border-white/10 bg-slate-900/70 p-8 backdrop-blur-xl shadow-2xl shadow-cyan-500/10">
-            <div className="text-center">
-              <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">Mis 50 Karina</h1>
+    <FiestaBackground>
+      <div className="min-h-screen flex flex-col px-3 py-6 pb-32 sm:px-4 sm:py-8 sm:pb-36 sm:pl-[min(28vw,220px)]">
+        <header className="mb-5 sm:mb-8">
+          <div className="mx-auto max-w-5xl rounded-2xl border border-fiesta-burgundy/25 bg-fiesta-cream-light/85 p-4 shadow-fiesta backdrop-blur-sm sm:rounded-[2rem] sm:p-8">
+            <div className="text-center sm:text-right">
+              <h1 className="font-script text-4xl leading-tight text-fiesta-burgundy sm:text-6xl">
+                Mis 50 Karina
+              </h1>
             </div>
           </div>
         </header>
 
         <main className="mx-auto w-full max-w-6xl">
           {errorMessage && (
-            <div className="mb-6 rounded-3xl border border-red-500/20 bg-red-500/10 px-5 py-4 text-red-100">
+            <div className="mb-6 rounded-3xl border border-fiesta-wine/30 bg-fiesta-wine/10 px-5 py-4 text-fiesta-burgundy-dark">
               {errorMessage}
             </div>
           )}
 
           {photos.length === 0 ? (
-            <div className="flex min-h-[450px] items-center justify-center rounded-[2rem] border border-white/10 bg-slate-900/80 p-10 text-center shadow-2xl shadow-slate-950/50">
+            <div className="flex min-h-[280px] items-center justify-center rounded-2xl border border-fiesta-burgundy/20 bg-fiesta-cream-light/90 p-6 text-center shadow-fiesta sm:min-h-[450px] sm:rounded-[2rem] sm:p-10">
               <div>
-                <p className="text-lg font-semibold text-white">Aún no hay fotos en la galería</p>
-                <p className="mt-2 text-sm text-slate-400">Usa el botón de abajo para subir tu primera imagen del festejo.</p>
+                <p className="text-lg font-semibold text-fiesta-burgundy">Aún no hay fotos en la galería</p>
+                <p className="mt-2 text-sm text-fiesta-burgundy/70">
+                  Usa el botón de abajo para subir tu primera imagen del festejo.
+                </p>
               </div>
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3">
               {photos.map((photo) => (
                 <article
                   key={photo.id}
-                  className="group overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-[0_20px_80px_rgba(15,23,42,0.35)] transition-transform duration-300 hover:-translate-y-1"
+                  className="group overflow-hidden rounded-xl border border-fiesta-burgundy/20 bg-fiesta-cream-light/95 shadow-fiesta transition-transform duration-300 hover:-translate-y-1 sm:rounded-2xl md:rounded-[2rem]"
                 >
-                  <div className="relative overflow-hidden">
+                  <div className="relative aspect-[3/4] overflow-hidden sm:aspect-[4/5] md:aspect-auto md:h-64 lg:h-72">
                     <img
                       src={photo.url}
                       alt={`Foto de ${photo.uploadedBy.firstName} ${photo.uploadedBy.lastName}`}
-                      className="h-80 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/90 to-transparent px-4 py-4 text-white">
-                      <p className="text-sm font-semibold">{photo.uploadedBy.firstName} {photo.uploadedBy.lastName}</p>
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-fiesta-burgundy-dark/90 to-transparent px-2 py-2 text-fiesta-cream-light sm:px-4 sm:py-3">
+                      <p className="truncate text-xs font-semibold sm:text-sm">
+                        {photo.uploadedBy.firstName} {photo.uploadedBy.lastName}
+                      </p>
                     </div>
                   </div>
                 </article>
@@ -186,20 +186,28 @@ function App() {
           )}
 
           {loading && (
-            <div className="mt-8 rounded-[2rem] border border-white/10 bg-slate-900/80 p-8 text-center text-slate-300">
+            <div className="mt-8 rounded-[2rem] border border-fiesta-burgundy/20 bg-fiesta-cream-light/90 p-8 text-center text-fiesta-burgundy/80">
               Cargando fotos... espera un momento.
             </div>
           )}
         </main>
 
-        <div className="fixed bottom-8 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-4">
+        <div className="fixed bottom-5 left-1/2 z-20 flex w-full max-w-xs -translate-x-1/2 flex-col items-center gap-3 px-4 sm:bottom-8 sm:max-w-none sm:gap-4">
           <div className="text-center">
-            <p className="text-white font-black text-lg mb-2 animate-bounce">¡TÚ TURNO! SUBE TU MEJOR MOMENTO</p>
-            <ChevronDown className="w-6 h-6 text-cyan-400 mx-auto animate-bounce" />
+            <p
+              className="mb-1 animate-bounce text-sm font-bold text-white sm:mb-2 sm:text-lg"
+              style={{ textShadow: '0 1px 3px rgba(92, 0, 21, 0.9), 0 2px 12px rgba(92, 0, 21, 0.55)' }}
+            >
+              ¡Tú turno! Sube tu mejor momento
+            </p>
+            <ChevronDown
+              className="mx-auto h-6 w-6 animate-bounce text-white"
+              style={{ filter: 'drop-shadow(0 1px 3px rgba(92, 0, 21, 0.9)) drop-shadow(0 2px 8px rgba(92, 0, 21, 0.5))' }}
+            />
           </div>
           <button
             onClick={handleUploadClick}
-            className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-cyan-400 to-purple-600 text-white shadow-[0_0_30px_rgba(34,211,238,0.6)] transition-transform duration-200 hover:scale-110"
+            className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-fiesta-blossom to-fiesta-burgundy text-fiesta-cream-light shadow-[0_0_24px_rgba(128,0,32,0.45)] transition-transform duration-200 hover:scale-110 sm:h-16 sm:w-16"
             aria-label="Subir foto"
           >
             <Camera className="h-8 w-8" />
@@ -215,7 +223,7 @@ function App() {
         onChange={handleFileInput}
         className="hidden"
       />
-    </div>
+    </FiestaBackground>
   );
 }
 
