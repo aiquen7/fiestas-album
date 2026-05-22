@@ -93,12 +93,14 @@ function App() {
 
     setErrorMessage('');
     setUploading(true);
+    setUploadStatus('Subiendo imagen');
 
     const imageFiles = Array.from(files).filter((file) => file.type.startsWith('image/'));
 
     if (!imageFiles.length) {
       setErrorMessage('Seleccioná al menos una imagen válida.');
       setUploading(false);
+      setUploadStatus('');
       event.target.value = '';
       return;
     }
@@ -106,20 +108,9 @@ function App() {
     try {
       for (let index = 0; index < imageFiles.length; index += 1) {
         const originalFile = imageFiles[index];
-        setUploadStatus(
-          imageFiles.length > 1
-            ? `Procesando imagen ${index + 1} de ${imageFiles.length} (WebP sin pérdida)...`
-            : 'Procesando imagen (WebP sin pérdida)...',
-        );
 
         const { file: webpFile, fileName, originalSize, outputSize } =
           await convertImageToWebPLossless(originalFile);
-
-        setUploadStatus(
-          imageFiles.length > 1
-            ? `Subiendo ${index + 1} de ${imageFiles.length}...`
-            : 'Subiendo a la galería...',
-        );
 
         const { error: uploadError } = await supabase.storage
           .from('fotos_fiesta')
