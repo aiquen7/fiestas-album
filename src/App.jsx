@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from './lib/supabase';
-import imageCompression from 'browser-image-compression';
-import { Camera, ChevronDown } from 'lucide-react';
+import { convertImageToWebPLossless } from './lib/imageToWebPLossless';
+import { Camera, ChevronDown, Loader2 } from 'lucide-react';
 import Login from './Login';
 import FiestaBackground from './components/FiestaBackground';
 
@@ -9,6 +9,8 @@ function App() {
   const [user, setUser] = useState(null);
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const fileInputRef = useRef(null);
 
@@ -78,54 +80,90 @@ function App() {
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
+  /**
+   * Flujo de subida:
+   * 1. Captura desde input (image/*)
+   * 2. Conversión WebP lossless en el cliente (canvas + @jsquash/webp)
+   * 3. Upload del Blob/File .webp a Supabase Storage
+   * 4. Registro en tabla fotos
+   */
   const handleFileInput = async (event) => {
     const files = event.target.files;
-    if (!files || !user) return;
+    if (!files?.length || !user || uploading) return;
 
     setErrorMessage('');
+    setUploading(true);
 
-    for (const file of Array.from(files)) {
-      if (!file.type.startsWith('image/')) continue;
+    const imageFiles = Array.from(files).filter((file) => file.type.startsWith('image/'));
 
-      try {
-        const compressedFile = await imageCompression(file, {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 1920,
-          useWebWorker: true,
-        });
+    if (!imageFiles.length) {
+      setErrorMessage('Seleccioná al menos una imagen válida.');
+      setUploading(false);
+      event.target.value = '';
+      return;
+    }
 
-        const fileName = `${Date.now()}-${Math.random()}.${compressedFile.name.split('.').pop()}`;
+    try {
+      for (let index = 0; index < imageFiles.length; index += 1) {
+        const originalFile = imageFiles[index];
+        setUploadStatus(
+          imageFiles.length > 1
+            ? `Procesando imagen ${index + 1} de ${imageFiles.length} (WebP sin pérdida)...`
+            : 'Procesando imagen (WebP sin pérdida)...',
+        );
+
+        const { file: webpFile, fileName, originalSize, outputSize } =
+          await convertImageToWebPLossless(originalFile);
+
+        setUploadStatus(
+          imageFiles.length > 1
+            ? `Subiendo ${index + 1} de ${imageFiles.length}...`
+            : 'Subiendo a la galería...',
+        );
+
         const { error: uploadError } = await supabase.storage
           .from('fotos_fiesta')
-          .upload(fileName, compressedFile);
+          .upload(fileName, webpFile, {
+            contentType: 'image/webp',
+            cacheControl: '3600',
+            upsert: false,
+          });
 
         if (uploadError) throw uploadError;
 
-        const { data: urlData, error: publicUrlError } = await supabase.storage
+        const { data: urlData, error: publicUrlError } = supabase.storage
           .from('fotos_fiesta')
           .getPublicUrl(fileName);
 
         if (publicUrlError) throw publicUrlError;
 
-        const { error: insertError } = await supabase
-          .from('fotos')
-          .insert({
-            url_foto: urlData.publicUrl,
-            nombre_usuario: `${user.firstName} ${user.lastName}`.trim(),
-          });
+        const { error: insertError } = await supabase.from('fotos').insert({
+          url_foto: urlData.publicUrl,
+          nombre_usuario: `${user.firstName} ${user.lastName}`.trim(),
+        });
 
         if (insertError) throw insertError;
 
-        event.target.value = null;
-      } catch (error) {
-        console.error('Error uploading photo:', error);
-        setErrorMessage('Hubo un problema al subir la imagen. Intenta de nuevo.');
+        console.info(
+          `[WebP lossless] ${originalFile.name}: ${(originalSize / 1024).toFixed(0)} KB → ${(outputSize / 1024).toFixed(0)} KB`,
+        );
       }
+    } catch (error) {
+      console.error('Error en pipeline de subida:', error);
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Hubo un problema al subir la imagen. Intenta de nuevo.',
+      );
+    } finally {
+      setUploading(false);
+      setUploadStatus('');
+      event.target.value = '';
     }
   };
 
   const handleUploadClick = () => {
-    fileInputRef.current?.click();
+    if (!uploading) {
+      fileInputRef.current?.click();
+    }
   };
 
   if (!user) {
@@ -146,6 +184,17 @@ function App() {
         </header>
 
         <main className="mx-auto w-full max-w-6xl">
+          {uploading && (
+            <div
+              className="mb-6 flex items-center gap-3 rounded-3xl border border-fiesta-burgundy/30 bg-fiesta-cream-light/95 px-5 py-4 text-fiesta-burgundy shadow-fiesta"
+              role="status"
+              aria-live="polite"
+            >
+              <Loader2 className="h-5 w-5 shrink-0 animate-spin text-fiesta-blossom" />
+              <p className="text-sm font-medium sm:text-base">{uploadStatus}</p>
+            </div>
+          )}
+
           {errorMessage && (
             <div className="mb-6 rounded-3xl border border-fiesta-wine/30 bg-fiesta-wine/10 px-5 py-4 text-fiesta-burgundy-dark">
               {errorMessage}
@@ -207,10 +256,16 @@ function App() {
           </div>
           <button
             onClick={handleUploadClick}
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-fiesta-blossom to-fiesta-burgundy text-fiesta-cream-light shadow-[0_0_24px_rgba(128,0,32,0.45)] transition-transform duration-200 hover:scale-110 sm:h-16 sm:w-16"
+            disabled={uploading}
+            className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-fiesta-blossom to-fiesta-burgundy text-fiesta-cream-light shadow-[0_0_24px_rgba(128,0,32,0.45)] transition-transform duration-200 hover:scale-110 disabled:cursor-not-allowed disabled:opacity-60 sm:h-16 sm:w-16"
             aria-label="Subir foto"
+            aria-busy={uploading}
           >
-            <Camera className="h-8 w-8" />
+            {uploading ? (
+              <Loader2 className="h-8 w-8 animate-spin" />
+            ) : (
+              <Camera className="h-8 w-8" />
+            )}
           </button>
         </div>
       </div>
@@ -222,6 +277,7 @@ function App() {
         accept="image/*"
         onChange={handleFileInput}
         className="hidden"
+        disabled={uploading}
       />
     </FiestaBackground>
   );

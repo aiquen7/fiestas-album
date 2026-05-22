@@ -35,48 +35,40 @@ export default function FiestaBackground({ children }) {
 
       {/* Invitación: Karina a la izquierda */}
       <div
-        className="pointer-events-none absolute bottom-0 left-0 z-0 hidden h-[min(85vh,720px)] w-[min(52vw,420px)] sm:block"
+        className="pointer-events-none absolute bottom-0 left-0 z-0 hidden h-[min(88vh,760px)] w-[min(54vw,460px)] sm:block"
         aria-hidden
         style={{
           backgroundImage: "url('/invitacion-karina.png')",
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'left bottom',
           backgroundSize: 'auto 100%',
-          WebkitMaskImage:
-            'linear-gradient(to right, black 0%, black 55%, transparent 92%), linear-gradient(to top, black 0%, black 88%, transparent 100%)',
-          maskImage:
-            'linear-gradient(to right, black 0%, black 55%, transparent 92%), linear-gradient(to top, black 0%, black 88%, transparent 100%)',
-          WebkitMaskComposite: 'source-in',
-          maskComposite: 'intersect',
+          filter: 'saturate(1.25) contrast(1.08) brightness(1.04)',
+          WebkitMaskImage: 'linear-gradient(to right, black 0%, black 72%, transparent 96%)',
+          maskImage: 'linear-gradient(to right, black 0%, black 72%, transparent 96%)',
         }}
       />
       <div
-        className="pointer-events-none absolute bottom-0 left-0 z-0 h-[min(42vh,280px)] w-[min(48vw,200px)] opacity-60 sm:hidden"
+        className="pointer-events-none absolute bottom-0 left-0 z-0 h-[min(52vh,340px)] w-[min(58vw,260px)] sm:hidden"
         aria-hidden
         style={{
           backgroundImage: "url('/invitacion-karina.png')",
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'left bottom',
           backgroundSize: 'auto 100%',
-          WebkitMaskImage: 'linear-gradient(to right, black 35%, transparent 78%)',
-          maskImage: 'linear-gradient(to right, black 35%, transparent 78%)',
+          filter: 'saturate(1.3) contrast(1.1) brightness(1.05)',
+          WebkitMaskImage: 'linear-gradient(to right, black 0%, black 55%, transparent 88%)',
+          maskImage: 'linear-gradient(to right, black 0%, black 55%, transparent 88%)',
         }}
       />
 
-      {/* Velo suave para legibilidad del contenido */}
+      {/* Velo suave: más transparente a la izquierda para ver a Karina */}
       <div
         className="pointer-events-none absolute inset-0 z-[1]"
         aria-hidden
         style={{
           background:
-            'linear-gradient(105deg, transparent 0%, rgba(245, 230, 211, 0.15) 28%, rgba(245, 230, 211, 0.75) 48%, rgba(253, 245, 230, 0.92) 62%)',
+            'linear-gradient(105deg, transparent 0%, transparent 38%, rgba(245, 230, 211, 0.4) 50%, rgba(253, 245, 230, 0.85) 65%)',
         }}
-      />
-
-      {/* Marco fino como la invitación */}
-      <div
-        className="pointer-events-none absolute inset-3 z-[2] rounded-sm border border-fiesta-burgundy/35 sm:inset-4"
-        aria-hidden
       />
 
       <div className="relative z-10">{children}</div>
